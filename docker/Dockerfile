@@ -19,30 +19,8 @@ RUN apt-get install -y \
 
 RUN pip3 install cvxpy
 
-# setup ssh key
-ARG SSH_PRIVATE_KEY
-ARG SSH_PRIVATE_KEY_PUB
-
-# Authorize SSH Host
-RUN mkdir -p /root/.ssh && \
-    chmod 0700 /root/.ssh && \
-    ssh-keyscan github.com > /root/.ssh/known_hosts
-
-# Add the keys and set permissions
-RUN echo "$SSH_PRIVATE_KEY" > /root/.ssh/id_rsa && \
-    echo "$SSH_PRIVATE_KEY_PUB" > /root/.ssh/id_rsa.pub && \
-    chmod 600 /root/.ssh/id_rsa && \
-    chmod 600 /root/.ssh/id_rsa.pub
-
-RUN echo "IdentityFile /root/.ssh/id_rsa" >> /etc/ssh/ssh_config
-
 # catkin build
 RUN mkdir -p /root/catkin_ws/src && cd /root/catkin_ws/
-
-# Setup crazyflie udev rules
-RUN echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="1915", ATTRS{idProduct}=="7777", MODE="0664", GROUP="plugdev"' | sudo tee /etc/udev/rules.d/99-crazyradio.rules && \
-    echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="1915", ATTRS{idProduct}=="0101", MODE="0664", GROUP="plugdev"' | sudo tee -a /etc/udev/rules.d/99-crazyradio.rules
-RUN echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="5740", MODE="0664", GROUP="plugdev"' | sudo tee /etc/udev/rules.d/99-crazyflie.rules
 
 # Initialize rosdep
 RUN rosdep init && \
@@ -54,6 +32,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-noetic-tf \
     ros-noetic-tf-conversions \
     ros-noetic-ros-base=1.5.0-1* \
+    ros-noetic-mavros-msgs \
     && rm -rf /var/lib/apt/lists/*
 
 # Create an entrypoint script to pull the latest updates and build the workspace
@@ -67,5 +46,5 @@ RUN echo "source /root/catkin_ws/devel/setup.bash" >> ~/.bashrc
 # Set the entrypoint
 ENTRYPOINT ["/root/entrypoint.sh"]
 
-# Default command (can be overridden)
-CMD ["bash"]
+# Default command
+CMD ["4", "$(hostname -I | awk '{print $1}')", "$(hostname -I | awk '{print $1}')"]
