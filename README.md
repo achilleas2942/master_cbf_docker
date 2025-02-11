@@ -59,6 +59,7 @@
         ```
         ./run_container.sh
         ```
+
 #### Option 3 - Run directly docker container using the run bash script file
   - Go to the docker directory
     ```
