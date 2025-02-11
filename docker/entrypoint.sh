@@ -1,47 +1,31 @@
 #!/bin/bash
-set -e
 
 # Source the ROS setup
 source /opt/ros/noetic/setup.bash
 
-# Pull the latest updates from the repositories
-cd /root/catkin_ws/src
-if [ -d "crazyflie_ros" ]; then
-    cd crazyflie_ros && git pull && cd ..
-else
-    git clone git@github.com:whoenig/crazyflie_ros.git && \
-    { cd /root/catkin_ws/src/crazyflie_ros && git submodule init && git submodule update; }
-fi
+# Set the parameter
+NUM_ROBOTS=${1:-4}
+ROS_MASTER_IP=${2:-$(hostname -I | awk '{print $1}')}
+ROS_IP=${3:-$ROS_MASTER_IP}
 
+# Pull the latest updates from the repositories
 cd /root/catkin_ws/src
 if [ -d "cf_cbf" ]; then
     cd cf_cbf && git pull && cd ..
 else
-    git clone git@github.com:viswans2132/cf_cbf.git
+    git clone https://github.com/viswans2132/cf_cbf.git
 fi
 
 if [ -d "tb_cbf" ]; then
     cd tb_cbf && git pull && cd ..
 else
-    git clone git@github.com:viswans2132/tb_cbf.git
+    git clone https://github.com/viswans2132/tb_cbf.git
 fi
 
 if [ -d "cbf_constraints" ]; then
     cd cbf_constraints && git pull && cd ..
 else
-    git clone git@github.com:viswans2132/cbf_constraints.git
-fi
-
-if [ -d "libviconstream" ]; then
-    cd libviconstream && git pull && cd ..
-else
-    git clone git@github.com:LTU-RAI/libviconstream.git
-fi
-
-if [ -d "ros_viconstream" ]; then
-    cd ros_viconstream && git pull && cd ..
-else
-    git clone git@github.com:LTU-RAI/ros_viconstream.git
+    git clone https://github.com/viswans2132/cbf_constraints.git
 fi
 
 # Build the workspace
@@ -51,11 +35,9 @@ catkin_make
 # Source the workspace
 source /root/catkin_ws/devel/setup.bash
 
-# Export ROS_MASTER_URI
-export ROS_MASTER_URI=http://130.240.96.104:11311
-
-# Automatically detect and export the host IP for ROS_IP
-export ROS_IP=$(ip route | grep default | awk '{print $3}')
+# Export ROS_MASTER_URI and ROS_IP
+export ROS_MASTER_URI=http://"$ROS_MASTER_IP":11311
+export ROS_IP="$ROS_IP"
 
 # Execute the provided command
-exec "$@"
+roslaunch cbf_constraints tro_docker_constraints.launch no_of_agents:="$NUM_ROBOTS"
