@@ -34,5 +34,6 @@ docker run --privileged -it \
     --env="DISPLAY" \
     --env="QT_X11_NO_MITSHM=1" \
     --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+    --name="master_cbf" \
     ghcr.io/achilleas2942/master-cbf \
     "$NUM_ROBOTS" "$ROS_MASTER_IP" "$ROS_IP"
