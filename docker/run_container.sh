@@ -29,7 +29,7 @@ if [[ "$ROS_IP" == "$ROS_MASTER_IP" ]]; then
 fi
 
 # Run the Docker container with the appropriate environment variables
-docker run --privileged -it \
+docker run --rm --privileged -it \
     --net=host \
     --env="DISPLAY" \
     --env="QT_X11_NO_MITSHM=1" \
