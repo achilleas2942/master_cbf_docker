@@ -28,6 +28,12 @@ else
     git clone https://github.com/viswans2132/cbf_constraints.git
 fi
 
+if [ -d "docker_monitor" ]; then
+    cd docker_monitor && git pull && cd ..
+else
+    git clone https://github.com/achilleas2942/docker_monitor.git
+fi
+
 # Build the workspace
 cd /root/catkin_ws/
 catkin_make
